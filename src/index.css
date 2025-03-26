@@ -1,7 +1,12 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+html,
+body {
+  @apply m-0 p-0;
+}
+
 button {
-    @apply cursor-pointer;
+  @apply cursor-pointer;
 }

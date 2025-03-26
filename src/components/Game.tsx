@@ -1,5 +1,4 @@
 import Course, { CourseInterface } from './Course';
-import Header from './Header';
 import Holes from './Holes';
 import Player from './Player';
 import SaveGameModal from './SaveGameModal';
@@ -54,49 +53,43 @@ function Game() {
   } = useGameState(courses);
 
   return (
-    <div className='min-h-screen p-4 bg-blue-100 dark:bg-gray-900 transition-colors'>
-      <div className='p-6 max-w-4xl mx-auto bg-white dark:bg-gray-800 dark:text-white rounded-2xl shadow-lg'>
-        <Header />
+    <>
+      <Course
+        courses={courses}
+        selectedCourse={selectedCourse}
+        setSelectedCourse={setSelectedCourse}
+      />
 
-        <main>
-          <Course
-            courses={courses}
-            selectedCourse={selectedCourse}
-            setSelectedCourse={setSelectedCourse}
-          />
+      <Player
+        newPlayerName={newPlayerName}
+        setNewPlayerName={setNewPlayerName}
+        handleAddPlayer={handleAddPlayer}
+      />
 
-          <Player
-            newPlayerName={newPlayerName}
-            setNewPlayerName={setNewPlayerName}
-            handleAddPlayer={handleAddPlayer}
-          />
+      <Holes totalHoles={totalHoles} setTotalHoles={setTotalHoles} />
 
-          <Holes totalHoles={totalHoles} setTotalHoles={setTotalHoles} />
+      <ScoreCard
+        coursePar={coursePar}
+        players={players}
+        scores={scores}
+        selectedCourse={selectedCourse}
+        totalHoles={totalHoles}
+        handleScoreChange={handleScoreChange}
+        removePlayer={removePlayer}
+      />
 
-          <ScoreCard
-            coursePar={coursePar}
-            players={players}
-            scores={scores}
-            selectedCourse={selectedCourse}
-            totalHoles={totalHoles}
-            handleScoreChange={handleScoreChange}
-            removePlayer={removePlayer}
-          />
-
-          <button
-            className='w-full my-4 px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700'
-            onClick={saveGame}
-          >
-            Save Game
-          </button>
-        </main>
-      </div>
+      <button
+        className='w-full my-4 px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700'
+        onClick={saveGame}
+      >
+        Save Game
+      </button>
       <SaveGameModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onStartNewGame={startNewGame}
       />
-    </div>
+    </>
   );
 }
 

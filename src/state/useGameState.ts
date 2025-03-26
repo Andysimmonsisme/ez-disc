@@ -6,8 +6,10 @@ interface Scores {
   scores: number[];
 }
 
-interface Game {
+export interface Game {
   id: number;
+  course: CourseInterface;
+  date: Date;
   scores: Scores[];
 }
 
@@ -107,7 +109,12 @@ export const useGameState = (courses: CourseInterface[]) => {
     }
     // game hasn't been saved
     else {
-      games.push({ id: lastGameId + 1, scores: playerScores });
+      games.unshift({
+        id: lastGameId + 1,
+        course: selectedCourse,
+        date: new Date(),
+        scores: playerScores,
+      });
     }
     localStorage.setItem('games', JSON.stringify(games));
     setIsModalOpen(true);

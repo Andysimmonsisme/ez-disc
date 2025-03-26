@@ -1,6 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
+import Navigation from './Navigation';
 
-function Header() {
+interface HeaderProps {
+  title: string;
+}
+
+function Header({ title }: HeaderProps) {
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem('theme') === 'dark'
   );
@@ -16,9 +21,10 @@ function Header() {
   }, [darkMode]);
 
   return (
-    <header className='flex justify-between items-center mb-4'>
+    <header className='flex flex-wrap justify-between items-center mb-4'>
+      <Navigation />
       <h1 className='text-4xl font-extrabold text-blue-900 dark:text-white'>
-        EZ Disc
+        {title}
       </h1>
       <button
         onClick={() => setDarkMode(!darkMode)}
