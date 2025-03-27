@@ -2,7 +2,9 @@ import { CourseInterface } from './Course';
 import Score from './Score';
 
 interface ScoreCardProps {
+  gameId: number,
   coursePar: number;
+  editMode: boolean;
   players: string[];
   scores: number[][];
   selectedCourse: CourseInterface;
@@ -10,13 +12,16 @@ interface ScoreCardProps {
   handleScoreChange: (
     playerIndex: number,
     holeIndex: number,
-    change: number
+    change: number,
+    gameId: number,
   ) => void;
-  removePlayer: (playerIndex: number) => void;
+  removePlayer: (playerIndex: number, gameId: number) => void;
 }
 
 function ScoreCard({
+  gameId,
   coursePar,
+  editMode,
   players,
   scores,
   selectedCourse,
@@ -49,17 +54,20 @@ function ScoreCard({
           {players.map((playerName, playerIndex) => (
             <Score
               key={playerIndex}
+              editMode={editMode}
               playerName={playerName}
-              playerScores={scores[playerIndex]}
+              scores={scores}
+              playerIndex={playerIndex}
               coursePar={coursePar}
+              selectedCourse={selectedCourse}
               totalScore={scores[playerIndex].reduce(
                 (sum, score) => sum + score,
                 0
               )}
               onScoreChange={(holeIndex, change) =>
-                handleScoreChange(playerIndex, holeIndex, change)
+                handleScoreChange(playerIndex, holeIndex, change, gameId)
               }
-              onRemove={() => removePlayer(playerIndex)}
+              onRemove={() => removePlayer(playerIndex, gameId)}
             />
           ))}
         </tbody>

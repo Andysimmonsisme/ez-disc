@@ -10,6 +10,7 @@ export interface Game {
   id: number;
   course: CourseInterface;
   date: Date;
+  finished: boolean;
   scores: Scores[];
 }
 
@@ -23,23 +24,38 @@ export const useGameState = (courses: CourseInterface[]) => {
   const [selectedCourse, setSelectedCourse] = useState(courses[0]);
   const [totalHoles, setTotalHoles] = useState(selectedCourse.defaultHoles);
 
+  // initial load
   useEffect(() => {
-    setTotalHoles(selectedCourse.defaultHoles);
-    setCoursePar(
-      selectedCourse.par.reduce(
-        (accumulator, currentValue) => accumulator + currentValue,
-        0
-      )
-    );
+    const unfinishedGame: Game = JSON.parse(
+      localStorage.getItem('games') || '[]'
+    ).find((game: Game) => game?.finished === false);
+
+    if (unfinishedGame) {
+      setSelectedCourse(unfinishedGame.course);
+      setCurrentGameId(unfinishedGame.id);
+      setPlayers(unfinishedGame.scores.map((score) => score.player));
+      setScores(unfinishedGame.scores.map((score) => score.scores));
+    }
+  }, []);
+
+  // updates to player (add/remove) and updates to scores
+  useEffect(() => {
+    saveGame();
+  }, [players, scores]);
+
+  // new course selected or number of holes changed
+  useEffect(() => {
+    setTotalHoles(scores[0]?.length || selectedCourse.defaultHoles);
   }, [selectedCourse]);
 
+  // number of total holes changed
   useEffect(() => {
     setCoursePar(
       selectedCourse.par
         .slice(0, totalHoles)
         .reduce((accumulator, currentValue) => accumulator + currentValue, 0)
     );
-  }, [totalHoles]);
+  }, [selectedCourse.par, totalHoles]);
 
   const handleAddPlayer = () => {
     if (newPlayerName.trim()) {
@@ -55,27 +71,28 @@ export const useGameState = (courses: CourseInterface[]) => {
     change: number
   ) => {
     setScores((prevScores) =>
-      prevScores.map((playerScores, i) =>
-        i === playerIndex
-          ? playerScores.map((score, j) => {
-              if (j === holeIndex) {
-                const newScore = score + change;
+      prevScores.map((playerScores, i) => {
+        if (i === playerIndex) {
+          return playerScores.map((score, j) => {
+            if (j === holeIndex) {
+              const newScore = score + change;
 
-                // first setting score with minus sign
-                if (newScore < 0) {
-                  return selectedCourse.par[holeIndex] - 1;
-                }
-                // first setting score with plus sign
-                else if (score === 0 && newScore === 1) {
-                  return selectedCourse.par[holeIndex];
-                }
-
-                return score + change;
+              // first setting score with minus sign
+              if (newScore < 0) {
+                return selectedCourse.par[holeIndex] - 1;
               }
-              return score;
-            })
-          : playerScores
-      )
+              // first setting score with plus sign
+              else if (score === 0 && newScore === 1) {
+                return selectedCourse.par[holeIndex];
+              }
+
+              return score + change;
+            }
+            return score;
+          });
+        }
+        return playerScores;
+      })
     );
   };
 
@@ -84,10 +101,10 @@ export const useGameState = (courses: CourseInterface[]) => {
     setScores(scores.filter((_, i) => i !== index));
   };
 
-  const saveGame = () => {
+  const saveGame = (finished: boolean = false) => {
     if (!players.length) return;
     let games: Game[] = JSON.parse(localStorage.getItem('games') || '[]');
-    const lastGameId = games.length ? games[games.length - 1].id : 0;
+    const lastGameId = games.length ? games[0].id : 0;
     const playerScores: Scores[] = [];
 
     players.forEach((player: string, i: number) => {
@@ -102,7 +119,8 @@ export const useGameState = (courses: CourseInterface[]) => {
     // game has already been saved
     if (currentGameId) {
       games = games.map((game) => {
-        if (game.id === currentGameId) return { ...game, scores: playerScores };
+        if (game.id === currentGameId)
+          return { ...game, finished, scores: playerScores };
 
         return game;
       });
@@ -113,14 +131,15 @@ export const useGameState = (courses: CourseInterface[]) => {
         id: lastGameId + 1,
         course: selectedCourse,
         date: new Date(),
+        finished: false,
         scores: playerScores,
       });
     }
     localStorage.setItem('games', JSON.stringify(games));
-    setIsModalOpen(true);
   };
 
   const startNewGame = () => {
+    saveGame(true);
     setCurrentGameId(null);
     setPlayers([]);
     setScores([]);

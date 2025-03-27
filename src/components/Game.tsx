@@ -35,6 +35,7 @@ function Game() {
   ];
   const {
     coursePar,
+    currentGameId,
     isModalOpen,
     newPlayerName,
     players,
@@ -44,7 +45,6 @@ function Game() {
     handleAddPlayer,
     handleScoreChange,
     removePlayer,
-    saveGame,
     startNewGame,
     setNewPlayerName,
     setSelectedCourse,
@@ -69,7 +69,9 @@ function Game() {
       <Holes totalHoles={totalHoles} setTotalHoles={setTotalHoles} />
 
       <ScoreCard
+        gameId={currentGameId ?? -1}
         coursePar={coursePar}
+        editMode={true}
         players={players}
         scores={scores}
         selectedCourse={selectedCourse}
@@ -80,9 +82,9 @@ function Game() {
 
       <button
         className='w-full my-4 px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700'
-        onClick={saveGame}
+        onClick={() => setIsModalOpen(true)}
       >
-        Save Game
+        Finish Game
       </button>
       <SaveGameModal
         isOpen={isModalOpen}

@@ -26,12 +26,27 @@ function Header({ title }: HeaderProps) {
       <h1 className='text-4xl font-extrabold text-blue-900 dark:text-white'>
         {title}
       </h1>
-      <button
-        onClick={() => setDarkMode(!darkMode)}
-        className='px-4 py-2 rounded bg-gray-700 dark:bg-gray-200 text-white dark:text-black hover:bg-gray-600 dark:hover:bg-gray-300'
-      >
-        Toggle {darkMode ? 'Light' : 'Dark'} Mode
-      </button>
+
+      <div role='group' aria-label='Dark and Light Mode Toggle' className='flex'>
+        <button
+          onClick={() => setDarkMode(true)}
+          aria-pressed={darkMode}
+          className={`px-4 py-2 rounded ${
+            darkMode ? 'bg-blue-600' : 'border border-gray-300 hover:bg-gray-200'
+          }`}
+        >
+          Dark Mode
+        </button>
+        <button
+          onClick={() => setDarkMode(false)}
+          aria-pressed={!darkMode}
+          className={`px-4 py-2 rounded ${
+            !darkMode ? 'bg-blue-600 text-white' : 'border border-gray-600 hover:bg-gray-600'
+          }`}
+        >
+          Light Mode
+        </button>
+      </div>
     </header>
   );
 }
