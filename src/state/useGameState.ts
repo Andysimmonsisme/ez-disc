@@ -46,6 +46,7 @@ export const useGameState = (courses: CourseInterface[]) => {
   // new course selected or number of holes changed
   useEffect(() => {
     setTotalHoles(scores[0]?.length || selectedCourse.defaultHoles);
+    saveGame();
   }, [selectedCourse]);
 
   // number of total holes changed
@@ -120,7 +121,12 @@ export const useGameState = (courses: CourseInterface[]) => {
     if (currentGameId) {
       games = games.map((game) => {
         if (game.id === currentGameId)
-          return { ...game, finished, scores: playerScores };
+          return {
+            ...game,
+            course: selectedCourse,
+            finished,
+            scores: playerScores,
+          };
 
         return game;
       });
