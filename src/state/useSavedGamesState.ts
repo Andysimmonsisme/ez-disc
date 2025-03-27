@@ -68,6 +68,7 @@ export const useSavedGamesState = () => {
   };
 
   const removePlayer = (playerIndex: number, gameId: number) => {
+    if(games.find((game) => gameId === game.id)?.scores.length === 1) return;// only one player, don't remove
     setGames((prevGames) => {
       return prevGames.map((game) => {
         if (game.id === gameId) {
