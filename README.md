@@ -1,5 +1,5 @@
 # EZ Disc
-EZ Disc is a React based web application for tracking disc golf games. It allows users to add players, keep score for each hole, and view scores for each player. Users can also view and edit previous game scores.
+EZ Disc is a React based web app for tracking disc golf games. It allows users to add players, keep score for each hole, and view scores for each player. Users can also view and edit previous game scores.
 
 ## Features
 Add Players: Add players to a game by entering their name.
