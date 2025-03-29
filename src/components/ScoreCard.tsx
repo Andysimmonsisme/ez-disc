@@ -42,12 +42,12 @@ function ScoreCard({
             {Array.from({ length: totalHoles }, (_, i) => (
               <th
                 key={i}
-                className={`border border-gray-300 px-2 dark:border-gray-600 ${i === 0 ? 'border-l-0' : ''}`}
+                className={`bg-white dark:bg-gray-800 border border-gray-300 px-2 dark:border-gray-600 ${i === 0 ? 'border-l-0' : ''}`}
               >
                 Hole {i + 1} (Par {selectedCourse && selectedCourse.par[i]})
               </th>
             ))}
-            <th className='border border-gray-300 px-4 py-2 dark:border-gray-600'>
+            <th className='bg-white dark:bg-gray-800 border border-gray-300 px-4 py-2 dark:border-gray-600'>
               Total (Par {coursePar})
             </th>
           </tr>
