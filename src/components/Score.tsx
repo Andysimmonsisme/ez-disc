@@ -41,13 +41,16 @@ function Score({
 
   return (
     <tr>
-      <td className='border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold'>
-        {playerName} ({currentScore > 0 ? '+' : ''}{currentScore})
+      <td className='sticky left-0 z-1 bg-white dark:bg-gray-800 border-y border-gray-300 dark:border-gray-600 px-4 py-2 font-bold'>
+        {playerName} ({currentScore > 0 ? '+' : ''}
+        {currentScore})
+        <span className='absolute left-0 top-0 h-full w-px bg-gray-300 dark:bg-gray-600'></span>
+        <span className='absolute right-0 top-0 h-full w-px bg-gray-300 dark:bg-gray-600'></span>
       </td>
       {scores[playerIndex].map((score, holeIndex) => (
         <td
           key={holeIndex}
-          className='border border-gray-300 dark:border-gray-600 px-2 py-2'
+          className={`border border-gray-300 dark:border-gray-600 px-2 py-2 ${holeIndex === 0 ? 'border-l-0' : ''}`}
         >
           <div className='flex items-center justify-center space-x-2'>
             {editMode && (
@@ -73,17 +76,18 @@ function Score({
         </td>
       ))}
       <td className='border border-gray-300 dark:border-gray-600 px-4 py-2 text-center font-bold'>
-        {totalScore} ({totalScore > coursePar && '+'}
-        {totalScore - coursePar})
+        {totalScore}
       </td>
-      {editMode && <td className='border border-gray-300 dark:border-gray-600 px-4 py-2 text-center'>
-        <button
-          onClick={onRemove}
-          className='bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600'
-        >
-          Remove
-        </button>
-      </td>}
+      {editMode && (
+        <td className='border border-gray-300 dark:border-gray-600 px-4 py-2 text-center'>
+          <button
+            onClick={onRemove}
+            className='bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600'
+          >
+            Remove
+          </button>
+        </td>
+      )}
     </tr>
   );
 }
