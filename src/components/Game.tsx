@@ -1,64 +1,48 @@
-import Course, { CourseInterface } from './Course';
+import React, { createContext, useContext } from 'react';
+import Course from './Course';
+import { courses } from '../data/courses';
 import Holes from './Holes';
 import Player from './Player';
 import SaveGameModal from './SaveGameModal';
 import ScoreCard from './ScoreCard';
-import { useGameState } from '../state/useGameState';
+import { useGameState, GameState, Action } from '../state/useGameState'; // Use the custom hook
+
+// Create a Context for the Game State
+const GameContext = createContext<{ state: GameState; dispatch: React.Dispatch<Action> } | undefined>(
+  undefined
+);
+
+export const useGameContext = () => {
+  const context = useContext(GameContext);
+  if (!context) {
+    throw new Error('useGameContext must be used within a GameProvider');
+  }
+  return context;
+};
 
 function Game() {
-  const courses: CourseInterface[] = [
-    {
-      name: 'Boyd Hill',
-      defaultHoles: 18,
-      par: Array(18).fill(3),
-    },
-    {
-      name: 'Fewell Park',
-      defaultHoles: 9,
-      par: Array(18).fill(3),
-    },
-    {
-      name: 'Westminster Park',
-      defaultHoles: 18,
-      par: [3, 3, 3, 5, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 3, 4],
-    },
-    {
-      name: 'Winget Park',
-      defaultHoles: 18,
-      par: [3, 3, 3, 3, 3, 3, 3, 4, 4, 3, 3, 4, 3, 4, 3, 3, 3, 3],
-    },
-    {
-      name: 'Winthrop Meadows',
-      defaultHoles: 18,
-      par: [3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 4, 4, 3, 3, 3, 5, 3],
-    },
-  ];
   const {
-    coursePar,
-    currentGameId,
-    isModalOpen,
+    selectedCourse,
     newPlayerName,
     players,
     scores,
-    selectedCourse,
     totalHoles,
+    coursePar,
+    isModalOpen,
+    currentGameId,
+    setSelectedCourse,
+    setNewPlayerName,
     handleAddPlayer,
     handleScoreChange,
     removePlayer,
-    startNewGame,
-    setNewPlayerName,
-    setSelectedCourse,
     setTotalHoles,
     setIsModalOpen,
-  } = useGameState(courses);
+    startNewGame,
+  } = useGameState(courses); // Use all returned state and functions
 
   return (
-    <>
-      <Course
-        courses={courses}
-        selectedCourse={selectedCourse}
-        setSelectedCourse={setSelectedCourse}
-      />
+    <div>
+      <Course courses={courses} selectedCourse={selectedCourse} setSelectedCourse={setSelectedCourse} />
 
       <Player
         newPlayerName={newPlayerName}
@@ -86,12 +70,13 @@ function Game() {
       >
         Finish Game
       </button>
+
       <SaveGameModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onStartNewGame={startNewGame}
       />
-    </>
+    </div>
   );
 }
 

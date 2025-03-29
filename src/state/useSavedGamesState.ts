@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Game } from './useGameState';
+import { GameInterface } from './useGameState';
 
 export const useSavedGamesState = () => {
-  const [games, setGames] = useState<Game[]>(JSON.parse(localStorage.getItem('games') || '[]'));
+  const [games, setGames] = useState<GameInterface[]>(JSON.parse(localStorage.getItem('games') || '[]'));
   const [editMode, setEditMode] = useState<boolean[]>(
     Array(games.length).fill(false)
   );
