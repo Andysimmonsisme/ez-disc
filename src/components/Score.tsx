@@ -19,7 +19,6 @@ function Score({
   playerIndex,
   scores,
   totalScore,
-  coursePar,
   selectedCourse,
   onScoreChange,
   onRemove,
