@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 import Course from './Course';
 import { courses } from '../data/courses';
 import Holes from './Holes';
@@ -7,8 +7,6 @@ import SaveGameModal from './SaveGameModal';
 import ScoreCard from './ScoreCard';
 import {
   useGameState,
-  GameState,
-  Action,
   GameInterface,
 } from '../state/useGameState';
 
@@ -17,19 +15,6 @@ interface GameProps {
   includeFooter: boolean;
   game?: GameInterface;
 }
-
-// Create a Context for the Game State
-const GameContext = createContext<
-  { state: GameState; dispatch: React.Dispatch<Action> } | undefined
->(undefined);
-
-export const useGameContext = () => {
-  const context = useContext(GameContext);
-  if (!context) {
-    throw new Error('useGameContext must be used within a GameProvider');
-  }
-  return context;
-};
 
 function Game({ editMode, includeFooter, game }: GameProps) {
   const {
