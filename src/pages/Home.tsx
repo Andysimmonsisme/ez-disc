@@ -1,7 +1,7 @@
-import Game from "../components/Game";
+import Game from '../components/Game';
 
 function Home() {
-    return <Game />;
+  return <Game editMode={true} includeFooter={true} />;
 }
 
 export default Home;

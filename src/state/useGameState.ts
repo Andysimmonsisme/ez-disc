@@ -23,6 +23,7 @@ export interface GameState {
   scores: number[][];
   selectedCourse: CourseInterface;
   totalHoles: number;
+  finished: boolean;
 }
 
 export type Action =
@@ -49,6 +50,7 @@ const initialState: GameState = {
   scores: [],
   selectedCourse: {} as CourseInterface, // selectedCourse will be initialized later
   totalHoles: 0,
+  finished: false
 };
 
 export const reducer = (state: GameState, action: Action): GameState => {
@@ -60,6 +62,7 @@ export const reducer = (state: GameState, action: Action): GameState => {
         currentGameId: action.payload.id,
         players: action.payload.scores.map((score: Scores) => score.player),
         scores: action.payload.scores.map((score: Scores) => score.scores),
+        finished: action.payload.finished
       };
 
     case 'ADD_PLAYER':
@@ -183,7 +186,7 @@ export const useGameState = (courses: CourseInterface[]) => {
           ? {
               ...game,
               course: state.selectedCourse,
-              finished,
+              finished: state.finished || finished,
               scores: playerScores,
             }
           : game
@@ -224,11 +227,13 @@ export const useGameState = (courses: CourseInterface[]) => {
         type: 'UPDATE_SCORE',
         payload: { playerIndex, holeIndex, change },
       }),
+    loadGame: (game: GameInterface) =>
+      dispatch({ type: 'LOAD_GAME', payload: game }),
     removePlayer: (index: number) =>
       dispatch({ type: 'REMOVE_PLAYER', payload: index }),
     startNewGame: () => {
       saveGameToLocalStorage(true);
-      dispatch({ type: 'START_NEW_GAME' }); 
+      dispatch({ type: 'START_NEW_GAME' });
 
       // Select the first course from the list and set it in the new game
       if (courses.length > 0) {

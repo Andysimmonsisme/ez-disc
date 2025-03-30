@@ -1,14 +1,8 @@
-import ScoreCard from './ScoreCard';
 import { useSavedGamesState } from '../state/useSavedGamesState';
+import Game from './Game';
 
 function SavedGames() {
-  const {
-    games,
-    editMode,
-    changeEditMode,
-    handleScoreChange,
-    removePlayer,
-  } = useSavedGamesState();
+  const { games, editMode, changeEditMode } = useSavedGamesState();
   return (
     <>
       {games.length === 0 ? (
@@ -38,7 +32,9 @@ function SavedGames() {
                   onClick={() => changeEditMode(false, index)}
                   aria-pressed={!editMode[index]}
                   className={`px-4 py-2 rounded border border-gray-300 dark:border-gray-600 ${
-                    !editMode[index] ? 'bg-blue-600 text-white' : 'hover:bg-gray-200 dark:hover:bg-gray-600'
+                    !editMode[index]
+                      ? 'bg-blue-600 text-white'
+                      : 'hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
                   View
@@ -49,26 +45,16 @@ function SavedGames() {
                   onClick={() => changeEditMode(true, index)}
                   aria-pressed={editMode[index]}
                   className={`px-4 py-2 rounded border border-gray-300 dark:border-gray-600 ${
-                    editMode[index] ? 'bg-blue-600 text-white' : 'hover:bg-gray-200 dark:hover:bg-gray-600'
+                    editMode[index]
+                      ? 'bg-blue-600 text-white'
+                      : 'hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
                   Edit
                 </button>
               </div>
 
-              <ScoreCard
-                gameId={game.id}
-                coursePar={game.course.par
-                  .slice(0, game.scores[0].scores.length)
-                  .reduce((sum, score) => sum + score, 0)}
-                editMode={editMode[index]}
-                players={game.scores.map((score) => score.player)}
-                scores={game.scores.map((score) => score.scores)}
-                selectedCourse={game.course}
-                totalHoles={game.scores[0].scores.length}
-                handleScoreChange={handleScoreChange}
-                removePlayer={removePlayer}
-              />
+              <Game editMode={editMode[index]} includeFooter={false} game={game} />
             </section>
           ))}
         </div>

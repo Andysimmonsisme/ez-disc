@@ -1,16 +1,27 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import Course from './Course';
 import { courses } from '../data/courses';
 import Holes from './Holes';
 import Player from './Player';
 import SaveGameModal from './SaveGameModal';
 import ScoreCard from './ScoreCard';
-import { useGameState, GameState, Action } from '../state/useGameState'; // Use the custom hook
+import {
+  useGameState,
+  GameState,
+  Action,
+  GameInterface,
+} from '../state/useGameState';
+
+interface GameProps {
+  editMode: boolean;
+  includeFooter: boolean;
+  game?: GameInterface;
+}
 
 // Create a Context for the Game State
-const GameContext = createContext<{ state: GameState; dispatch: React.Dispatch<Action> } | undefined>(
-  undefined
-);
+const GameContext = createContext<
+  { state: GameState; dispatch: React.Dispatch<Action> } | undefined
+>(undefined);
 
 export const useGameContext = () => {
   const context = useContext(GameContext);
@@ -20,7 +31,7 @@ export const useGameContext = () => {
   return context;
 };
 
-function Game() {
+function Game({ editMode, includeFooter, game }: GameProps) {
   const {
     selectedCourse,
     newPlayerName,
@@ -34,28 +45,46 @@ function Game() {
     setNewPlayerName,
     handleAddPlayer,
     handleScoreChange,
+    loadGame,
     removePlayer,
     setTotalHoles,
     setIsModalOpen,
     startNewGame,
   } = useGameState(courses); // Use all returned state and functions
 
+  // if game is passed load it
+  useEffect(() => {
+    if (game) {
+      loadGame(game);
+    }
+  }, []);
+
   return (
     <div>
-      <Course courses={courses} selectedCourse={selectedCourse} setSelectedCourse={setSelectedCourse} />
+      {editMode && (
+        <Course
+          courses={courses}
+          selectedCourse={selectedCourse}
+          setSelectedCourse={setSelectedCourse}
+        />
+      )}
 
-      <Player
-        newPlayerName={newPlayerName}
-        setNewPlayerName={setNewPlayerName}
-        handleAddPlayer={handleAddPlayer}
-      />
+      {editMode && (
+        <Player
+          newPlayerName={newPlayerName}
+          setNewPlayerName={setNewPlayerName}
+          handleAddPlayer={handleAddPlayer}
+        />
+      )}
 
-      <Holes totalHoles={totalHoles} setTotalHoles={setTotalHoles} />
+      {editMode && (
+        <Holes totalHoles={totalHoles} setTotalHoles={setTotalHoles} />
+      )}
 
       <ScoreCard
         gameId={currentGameId ?? -1}
         coursePar={coursePar}
-        editMode={true}
+        editMode={editMode}
         players={players}
         scores={scores}
         selectedCourse={selectedCourse}
@@ -64,18 +93,22 @@ function Game() {
         removePlayer={removePlayer}
       />
 
-      <button
-        className='w-full my-4 px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700'
-        onClick={() => setIsModalOpen(true)}
-      >
-        Finish Game
-      </button>
+      {includeFooter && (
+        <button
+          className='w-full my-4 px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700'
+          onClick={() => setIsModalOpen(true)}
+        >
+          Finish Game
+        </button>
+      )}
 
-      <SaveGameModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onStartNewGame={startNewGame}
-      />
+      {includeFooter && (
+        <SaveGameModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onStartNewGame={startNewGame}
+        />
+      )}
     </div>
   );
 }
