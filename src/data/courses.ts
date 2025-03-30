@@ -14,7 +14,7 @@ import { CourseInterface } from "../components/Course";
     {
       name: 'Westminster Park',
       defaultHoles: 18,
-      par: [3, 3, 3, 5, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 3, 3],
+      par: [3, 3, 3, 5, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 4, 3],
     },
     {
       name: 'Winget Park',
