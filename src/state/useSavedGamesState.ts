@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GameInterface } from './useGameState';
+import { GameInterface } from './gameReducer';
 
 export const useSavedGamesState = () => {
   const games: GameInterface[] = JSON.parse(localStorage.getItem('games') || '[]');

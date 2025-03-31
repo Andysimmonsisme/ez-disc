@@ -1,14 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Course from './Course';
-import { courses } from '../data/courses';
 import Holes from './Holes';
 import Player from './Player';
 import SaveGameModal from './SaveGameModal';
 import ScoreCard from './ScoreCard';
-import {
-  useGameState,
-  GameInterface,
-} from '../state/useGameState';
+import { GameInterface } from '../state/gameReducer';
+import { useGame } from '../state/GameContext';
+import { courses } from '../data/courses';
 
 interface GameProps {
   editMode: boolean;
@@ -17,66 +15,84 @@ interface GameProps {
 }
 
 function Game({ editMode, includeFooter, game }: GameProps) {
-  const {
-    selectedCourse,
-    newPlayerName,
-    players,
-    scores,
-    totalHoles,
-    coursePar,
-    isModalOpen,
-    currentGameId,
-    setSelectedCourse,
-    setNewPlayerName,
-    handleAddPlayer,
-    handleScoreChange,
-    loadGame,
-    removePlayer,
-    setTotalHoles,
-    setIsModalOpen,
-    startNewGame,
-  } = useGameState(courses); // Use all returned state and functions
+  const { state, dispatch } = useGame();
+  const [gameId, setGameId] = useState<number | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  // if game is passed load it
+  // if game is passed load it, else try to load from local storage
   useEffect(() => {
+    const localStorageGames: GameInterface[] = JSON.parse(
+      localStorage.getItem('games') || '[]'
+    );
+    const localStorageGame = localStorageGames.find(
+      (g: GameInterface) => !g?.finished
+    );
+
     if (game) {
-      loadGame(game);
+      dispatch({ type: 'LOAD_GAME', payload: game });
+      setGameId(game.id);
+    } else if (localStorageGame) {
+      dispatch({ type: 'LOAD_GAME', payload: localStorageGame });
+      setGameId(localStorageGame.id);
+    } else {
+      startNewGame(localStorageGames);
     }
   }, []);
 
+  useEffect(() => {
+    if (gameId === null) return; // Prevent running if gameId is not set
+
+    const currentGame = state.games.find((game) => game.id === gameId);
+    if (!currentGame || !currentGame.scores.length) return; // Prevent saving `null` or empty games
+
+    let localStorageGames = JSON.parse(localStorage.getItem('games') || '[]');
+
+    // game not passed in props
+    if (!game) {
+      if (currentGame.finished)
+        startNewGame(localStorageGames);
+    }
+
+    const gameExistsInLocalStorage = localStorageGames.find(
+      (g: GameInterface) => g?.id === currentGame?.id
+    );
+
+    if (gameExistsInLocalStorage) {
+      localStorageGames = localStorageGames.map((g: GameInterface) => {
+        if (g.id === currentGame?.id) return currentGame;
+        return g;
+      });
+    } else {
+      localStorageGames.unshift(currentGame);
+    }
+
+    localStorage.setItem('games', JSON.stringify(localStorageGames));
+  }, [state.games, gameId]);
+
+  function startNewGame(localStorageGames: GameInterface[]) {
+    setGameId(localStorageGames[0]?.id + 1 || 1);
+    dispatch({
+      type: 'LOAD_GAME',
+      payload: {
+        id: localStorageGames[0]?.id + 1 || 1,
+        course: courses[0],
+        totalHoles: courses[0].defaultHoles,
+        date: new Date(),
+        finished: false,
+        scores: [],
+      },
+    });
+  }
+
   return (
     <div>
-      {editMode && (
-        <Course
-          courses={courses}
-          selectedCourse={selectedCourse}
-          setSelectedCourse={setSelectedCourse}
-        />
-      )}
+      {editMode && <Course gameId={gameId ?? 1} />}
 
-      {editMode && (
-        <Player
-          newPlayerName={newPlayerName}
-          setNewPlayerName={setNewPlayerName}
-          handleAddPlayer={handleAddPlayer}
-        />
-      )}
+      {editMode && <Player gameId={gameId ?? 1} />}
 
-      {editMode && (
-        <Holes totalHoles={totalHoles} setTotalHoles={setTotalHoles} />
-      )}
+      {editMode && <Holes gameId={gameId ?? 1} />}
 
-      <ScoreCard
-        gameId={currentGameId ?? -1}
-        coursePar={coursePar}
-        editMode={editMode}
-        players={players}
-        scores={scores}
-        selectedCourse={selectedCourse}
-        totalHoles={totalHoles}
-        handleScoreChange={handleScoreChange}
-        removePlayer={removePlayer}
-      />
+      <ScoreCard gameId={gameId ?? -1} editMode={editMode} />
 
       {includeFooter && (
         <button
@@ -89,9 +105,9 @@ function Game({ editMode, includeFooter, game }: GameProps) {
 
       {includeFooter && (
         <SaveGameModal
+          gameId={gameId ?? 1}
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          onStartNewGame={startNewGame}
         />
       )}
     </div>

@@ -1,17 +1,15 @@
 import { FocusTrap } from 'focus-trap-react';
 import { useEffect, useRef } from 'react';
+import { useGame } from '../state/GameContext';
 
 interface SaveGameModalProps {
+  gameId: number;
   isOpen: boolean;
   onClose: () => void;
-  onStartNewGame: () => void;
 }
 
-function SaveGameModal({
-  isOpen,
-  onClose,
-  onStartNewGame,
-}: SaveGameModalProps) {
+function SaveGameModal({ gameId, isOpen, onClose }: SaveGameModalProps) {
+  const { dispatch } = useGame();
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -41,7 +39,7 @@ function SaveGameModal({
             </button>
             <button
               onClick={() => {
-                onStartNewGame();
+                dispatch({ type: 'START_NEW_GAME', payload: gameId });
                 onClose();
               }}
               className='bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded'

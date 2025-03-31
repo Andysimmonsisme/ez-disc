@@ -1,41 +1,40 @@
-import { useEffect, useState } from 'react';
-import { CourseInterface } from './Course';
+import { useGame } from '../state/GameContext';
 
 interface ScoreProps {
+  gameId: number;
   editMode: boolean;
   playerName: string;
   playerIndex: number;
-  scores: number[][];
-  totalScore: number;
-  coursePar: number;
-  selectedCourse: CourseInterface;
-  onScoreChange: (holeIndex: number, change: number) => void;
-  onRemove: () => void;
 }
 
-function Score({
-  editMode,
-  playerName,
-  playerIndex,
-  scores,
-  totalScore,
-  selectedCourse,
-  onScoreChange,
-  onRemove,
-}: ScoreProps) {
-  const calculateCurrentScore = () =>
-    scores[playerIndex].reduce((sum, score, index) => {
+function Score({ gameId, editMode, playerName, playerIndex }: ScoreProps) {
+  const { state, dispatch } = useGame();
+  const game = state.games.find((game) => game.id === gameId);
+  const currentScore =
+    game?.scores[playerIndex].scores.reduce((sum, score, index) => {
       if (score === 0) return sum; // Skip if score is 0
-      return sum + score - selectedCourse.par[index];
-    }, 0);
-  const [currentScore, setCurrentScore] = useState(0);
+      return sum + score - game.course.par[index];
+    }, 0) ?? 0;
+  const scores: number[] = game?.scores[playerIndex].scores || [];
+  const totalScore =
+    scores.slice(0, game?.totalHoles ?? 18).reduce((sum, score) => {
+      return sum + score;
+    }, 0) ?? 0;
 
-  useEffect(() => {
-    setCurrentScore(calculateCurrentScore());
-  }, [scores]);
-
-  const changeScore = (holeIndex: number, change: number) => {
-    onScoreChange(holeIndex, change);
+  const changeScore = (
+    playerIndex: number,
+    holeIndex: number,
+    change: number
+  ) => {
+    dispatch({
+      type: 'UPDATE_SCORE',
+      payload: {
+        gameId: gameId,
+        playerIndex: playerIndex,
+        holeIndex: holeIndex,
+        change: change,
+      },
+    });
   };
 
   return (
@@ -46,15 +45,17 @@ function Score({
         <span className='absolute left-0 top-0 h-full w-px bg-gray-300 dark:bg-gray-600'></span>
         <span className='absolute right-0 top-0 h-full w-px bg-gray-300 dark:bg-gray-600'></span>
       </td>
-      {scores[playerIndex].map((score, holeIndex) => (
+      {scores.map((score, holeIndex) => (
         <td
           key={holeIndex}
-          className={`border border-gray-300 dark:border-gray-600 px-2 py-2 ${holeIndex === 0 ? 'border-l-0' : ''}`}
+          className={`border border-gray-300 dark:border-gray-600 px-2 py-2 ${
+            holeIndex === 0 ? 'border-l-0' : ''
+          }`}
         >
           <div className='flex items-center justify-center space-x-2'>
             {editMode && (
               <button
-                onClick={() => changeScore(holeIndex, -1)}
+                onClick={() => changeScore(playerIndex, holeIndex, -1)}
                 className='bg-gray-400 text-white px-2 py-1 rounded hover:bg-gray-500'
                 aria-label='Subtract one'
               >
@@ -64,7 +65,7 @@ function Score({
             <span>{score}</span>
             {editMode && (
               <button
-                onClick={() => changeScore(holeIndex, 1)}
+                onClick={() => changeScore(playerIndex, holeIndex, 1)}
                 className='bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600'
                 aria-label='Add one'
               >
@@ -80,7 +81,12 @@ function Score({
       {editMode && (
         <td className='border border-gray-300 dark:border-gray-600 px-4 py-2 text-center'>
           <button
-            onClick={onRemove}
+            onClick={() =>
+              dispatch({
+                type: 'REMOVE_PLAYER',
+                payload: { gameId: gameId, playerIndex: playerIndex },
+              })
+            }
             className='bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600'
           >
             Remove

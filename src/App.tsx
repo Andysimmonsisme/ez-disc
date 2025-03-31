@@ -7,12 +7,15 @@ import {
 import Games from './pages/Games';
 import Header from './components/Header';
 import Home from './pages/Home';
+import { GameProvider } from './state/GameContext';
 
 function App() {
   return (
-    <Router>
-      <Main />
-    </Router>
+    <GameProvider>
+      <Router>
+        <Main />
+      </Router>
+    </GameProvider>
   );
 }
 

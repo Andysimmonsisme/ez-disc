@@ -1,34 +1,20 @@
-import { CourseInterface } from './Course';
+import { useGame } from '../state/GameContext';
 import Score from './Score';
 
 interface ScoreCardProps {
   gameId: number;
-  coursePar: number;
   editMode: boolean;
-  players: string[];
-  scores: number[][];
-  selectedCourse: CourseInterface;
-  totalHoles: number;
-  handleScoreChange: (
-    playerIndex: number,
-    holeIndex: number,
-    change: number,
-    gameId: number
-  ) => void;
-  removePlayer: (playerIndex: number, gameId: number) => void;
 }
 
-function ScoreCard({
-  gameId,
-  coursePar,
-  editMode,
-  players,
-  scores,
-  selectedCourse,
-  totalHoles,
-  handleScoreChange,
-  removePlayer,
-}: ScoreCardProps) {
+function ScoreCard({ gameId, editMode }: ScoreCardProps) {
+  const { state } = useGame();
+  const game = state.games.find((game) => game.id === gameId);
+  const players = game?.scores.map((score) => score.player) || [];
+  const totalPar =
+    game?.course.par
+      ?.slice(0, game.totalHoles)
+      .reduce((acc, cur) => acc + cur, 0) ?? 18;
+
   return (
     <section className='overflow-x-auto border-l-0 border-gray-300 dark:border-gray-600'>
       <table className='table-auto w-full border-collapse border border-l-0 border-gray-300 dark:border-gray-600'>
@@ -39,16 +25,18 @@ function ScoreCard({
               <span className='absolute left-0 top-0 h-full w-px bg-gray-300 dark:bg-gray-600'></span>
               <span className='absolute right-0 top-0 h-full w-px bg-gray-300 dark:bg-gray-600'></span>
             </th>
-            {Array.from({ length: totalHoles }, (_, i) => (
+            {Array.from({ length: game?.totalHoles || 18 }, (_, i) => (
               <th
                 key={i}
-                className={`bg-white dark:bg-gray-800 border border-gray-300 px-2 dark:border-gray-600 ${i === 0 ? 'border-l-0' : ''}`}
+                className={`bg-white dark:bg-gray-800 border border-gray-300 px-2 dark:border-gray-600 ${
+                  i === 0 ? 'border-l-0' : ''
+                }`}
               >
-                Hole {i + 1} (Par {selectedCourse && selectedCourse.par[i]})
+                Hole {i + 1} (Par {game?.course.par[i]})
               </th>
             ))}
             <th className='bg-white dark:bg-gray-800 border border-gray-300 px-4 py-2 dark:border-gray-600'>
-              Total (Par {coursePar})
+              Total (Par {totalPar})
             </th>
           </tr>
         </thead>
@@ -56,20 +44,10 @@ function ScoreCard({
           {players.map((playerName, playerIndex) => (
             <Score
               key={playerIndex}
+              gameId={gameId}
               editMode={editMode}
               playerName={playerName}
-              scores={scores}
               playerIndex={playerIndex}
-              coursePar={coursePar}
-              selectedCourse={selectedCourse}
-              totalScore={scores[playerIndex].reduce(
-                (sum, score) => sum + score,
-                0
-              )}
-              onScoreChange={(holeIndex, change) =>
-                handleScoreChange(playerIndex, holeIndex, change, gameId)
-              }
-              onRemove={() => removePlayer(playerIndex, gameId)}
             />
           ))}
         </tbody>
