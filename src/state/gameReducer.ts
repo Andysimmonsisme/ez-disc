@@ -62,7 +62,7 @@ export const reducer = (state: GamesState, action: Action): GamesState => {
               ...game.scores,
               {
                 player: action.payload.player,
-                scores: Array(game.totalHoles).fill(0),
+                scores: Array(18).fill(0),
               },
             ],
           };

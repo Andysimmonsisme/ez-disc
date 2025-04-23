@@ -15,7 +15,12 @@ function Score({ gameId, editMode, playerName, playerIndex }: ScoreProps) {
       if (score === 0) return sum; // Skip if score is 0
       return sum + score - game.course.par[index];
     }, 0) ?? 0;
-  const scores: number[] = game?.scores[playerIndex].scores || [];
+  const existingScores: number[] =
+    game?.scores?.[playerIndex].scores?.slice(0, game?.totalHoles ?? 18) || [];
+  const scores: number[] = [
+    ...existingScores,
+    ...Array((game?.totalHoles ?? 18) - existingScores.length).fill(0),
+  ];
   const totalScore =
     scores.slice(0, game?.totalHoles ?? 18).reduce((sum, score) => {
       return sum + score;
